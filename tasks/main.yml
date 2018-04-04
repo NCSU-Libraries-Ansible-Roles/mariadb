@@ -17,11 +17,13 @@
   service: name=mysql enabled=yes state=started
 - name: add maria database users
   mysql_user:
-    name: "{{project_name}}"
-    password: "{{project_name}}"
+    name: "{{item}}"
+    password: "{{item}}"
     host: localhost
     priv: "*.*:ALL"
     state: present
+  with_items:
+    - users
 
 - name: create project_name database
   mysql_db:
