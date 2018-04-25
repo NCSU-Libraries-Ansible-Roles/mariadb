@@ -24,10 +24,24 @@
 
 - name: add maria database users
   mysql_user:
-    name: "{{item}}"
+    name: "{{item.user}}"
     password: "{{item}}"
-    host: "{{ user_host | default('localhost') }}"
+    host: "{{ item.host | default('localhost') }}"
     priv: "*.*:ALL"
     state: present
   with_items: "{{users}}"
 
+- name: my.cnf changes for allowing access from outside
+  blockinfile:
+    path: /etc/my.cnf
+    block: |
+      [mysqld]
+      wait_timeout = 86400
+      max_allowed_packet = 500M
+      bind-address = 0.0.0.0
+
+- name: restarting mysql service
+  become: yes
+  service:
+    name: mysql
+    state: restarted
